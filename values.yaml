@@ -1,6 +1,17 @@
 # Default values for tianshu.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+monitoring:
+  storage:
+    classname: "nfs-client"
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+  grafana:
+    image: grafana/grafana:6.6.0
+  prometheus:
+    image: prom/prometheus:v2.7.1
+
+
 mysql:
   enable: true
   image: nacos/nacos-mysql:5.7
@@ -103,13 +114,7 @@ dubhe:
 #     server: "redis.dubhe-system.svc.cluster.local"
 #     password: "Tianshu@123"
 
-# monitoring:
-#   exporter:
-#     image: prom/node-exporter:v1.7.0
-#   grafana:
-#     image: grafana/grafana:6.6.0
-#   prometheus:
-#     image: prom/prometheus:v2.7.1
+
 
 # elk:
 #   fluent: 
