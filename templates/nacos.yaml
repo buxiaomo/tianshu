@@ -33,7 +33,7 @@ metadata:
 spec:
   podManagementPolicy: Parallel
   serviceName: nacos-headless
-  replicas: {{ .Values.nacos.replicas }}
+  replicas: "{{ .Values.nacos.replicas }}"
   template:
     metadata:
       labels:
@@ -63,7 +63,7 @@ spec:
       containers:
         - name: nacos
           imagePullPolicy: Always
-          image: {{ .Values.nacos.image }}
+          image: "{{ .Values.nacos.image }}"
           resources:
             requests:
               memory: "2Gi"
@@ -92,13 +92,13 @@ spec:
             - name: MYSQL_SERVICE_HOST
               value: "mysql"
             - name: MYSQL_SERVICE_DB_NAME
-              value: {{ .Values.mysql.database }}
+              value: "{{ .Values.mysql.database }}"
             - name: MYSQL_SERVICE_PORT
-              value: {{ .Values.mysql.port }}
+              value: "{{ .Values.mysql.port }}"
             - name: MYSQL_SERVICE_USER
-              value: {{ .Values.mysql.username }}
+              value: "{{ .Values.mysql.username }}"
             - name: MYSQL_SERVICE_PASSWORD
-              value: {{ .Values.mysql.password }}
+              value: "{{ .Values.mysql.password }}"
             - name: SPRING_DATASOURCE_PLATFORM
               value: "mysql"
             - name: NACOS_SERVER_PORT
