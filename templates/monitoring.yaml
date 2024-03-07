@@ -42,7 +42,7 @@ spec:
     spec:
       containers:
         - name: node-exporter
-          image: "{{ .Values.monitoring.node-exporter.image }}"
+          image: "{{ .Values.monitoring.nodeExporter.image }}"
           ports:
             - containerPort: 9100
               protocol: TCP

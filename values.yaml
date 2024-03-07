@@ -4,7 +4,7 @@
 monitoring:
   storage:
     classname: "nfs-client"
-  node-exporter:
+  nodeExporter:
     image: prom/node-exporter:v1.7.0
   grafana:
     image: grafana/grafana:6.6.0
