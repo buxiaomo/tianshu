@@ -1,33 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-auth
+  name: backend-gateway
   labels:
     dubhe.io/owner: "dubhe"
-    dubhe.io/application: "dubhe-backend-auth"
+    dubhe.io/application: "dubhe-backend-gateway"
 spec:
   replicas: 1
   selector:
     matchLabels:
       dubhe.io/owner: "dubhe"
-      dubhe.io/application: "dubhe-backend-auth"
+      dubhe.io/application: "dubhe-backend-gateway"
   template:
     metadata:
       labels:
         dubhe.io/owner: "dubhe"
-        dubhe.io/application: "dubhe-backend-auth"
+        dubhe.io/application: "dubhe-backend-gateway"
     spec:
       initContainers:
         - name: backend-init
           image: "{{ .Values.dubhe.registry }}/backend-init:v1"
+          volumeMounts:
+            - name: data
+              mountPath: /nfs
       containers:
-        - name: dubhe-backend-auth
-          image: "{{ .Values.dubhe.registry }}/auth:v1"
-          env:
-            - name: HOST_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
+        - name: dubhe-backend-gateway
+          image: "{{ .Values.dubhe.registry }}/gateway:v1"
           volumeMounts:
             - name: data
               mountPath: /nfs
@@ -40,15 +38,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-auth
+  name: backend-gateway
   labels:
     dubhe.io/owner: "dubhe"
-    dubhe.io/application: "dubhe-backend-auth"
+    dubhe.io/application: "dubhe-backend-gateway"
 spec:
   ports:
-    - port: 8866
-      targetPort: 8866
-      name: port-8866
+    - port: 8800
+      targetPort: 8800
+      name: port-8800
   selector:
     dubhe.io/owner: "dubhe"
-    dubhe.io/application: "dubhe-backend-auth"
+    dubhe.io/application: "dubhe-backend-gateway"
