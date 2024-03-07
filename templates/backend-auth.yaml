@@ -23,6 +23,22 @@ spec:
       containers:
         - name: dubhe-backend-auth
           image: "{{ .Values.dubhe.registry }}/auth:v1"
+          ports:
+            - name: tcp
+              containerPort: 8866
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8866
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8866
           envFrom:
             - configMapRef:
                 name: dubhe

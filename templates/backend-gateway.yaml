@@ -26,6 +26,22 @@ spec:
       containers:
         - name: dubhe-backend-gateway
           image: "{{ .Values.dubhe.registry }}/gateway:v1"
+          ports:
+            - name: tcp
+              containerPort: 8800
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8800
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8800
           envFrom:
             - configMapRef:
                 name: dubhe
