@@ -96,7 +96,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: prometheus-tianshu
-  namespace: {{ .Release.namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -104,7 +103,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: prometheus
-    namespace: {{ .Release.namespace }}
+    namespace: {{ .Release.Namespace }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -295,7 +294,7 @@ spec:
           image: alpine:3.6
           command: ["/bin/chown", "-R", "65534.65534", "/prometheus"]
           volumeMounts:
-            - name: prometheus-data
+            - name: prometheus-vol
               mountPath: /prometheus
           securityContext:
             privileged: true
