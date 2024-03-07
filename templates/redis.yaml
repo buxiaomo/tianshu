@@ -61,9 +61,9 @@ spec:
         - name: redis-vol
           persistentVolumeClaim:
             claimName: redis-vol
-        - name: redis-config
+        - name: redis
           configMap:
-            name: redis-config
+            name: redis
       containers:
         - name: redis
           image: {{ .Values.redis.image }}

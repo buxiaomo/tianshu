@@ -23,7 +23,6 @@ spec:
       port: 9000
       targetPort: http
       protocol: TCP
-      appProtocol: http
 
 ---
 apiVersion: apps/v1
