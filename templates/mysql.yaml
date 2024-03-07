@@ -173,9 +173,9 @@ spec:
             - name: TZ
               value: "Asia/Shanghai"
             - name: MYSQL_ROOT_PASSWORD
-              value: "root"
+              value: {{ .Values.mysql.password }}
             - name: MYSQL_DATABASE
-              value: "ruoyi"
+              value: {{ .Values.mysql.database }}
           # resources:
           #   limits:
           #     cpu: "2"
