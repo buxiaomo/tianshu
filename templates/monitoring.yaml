@@ -103,7 +103,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: prometheus
-    namespace: "{{ .Release.namespace }}"
+    namespace: {{ .Release.namespace }}
 ---
 apiVersion: v1
 kind: ConfigMap
