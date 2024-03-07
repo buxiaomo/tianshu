@@ -21,7 +21,7 @@ spec:
   ports:
     - name: minio
       port: 9000
-      targetPort: http
+      targetPort: 9000
       protocol: TCP
 
 ---
