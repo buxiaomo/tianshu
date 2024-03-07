@@ -58,9 +58,7 @@ spec:
   ports:
     - name: http
       port: 9100
-      nodePort: 31672
       protocol: TCP
-  type: NodePort
   selector:
     k8s-app: node-exporter
 
@@ -340,11 +338,9 @@ metadata:
     app: prometheus
   name: prometheus
 spec:
-  type: NodePort
   ports:
     - port: 9090
       targetPort: 9090
-      nodePort: 30003
   selector:
     app: prometheus
 ---
@@ -389,10 +385,8 @@ kind: Service
 metadata:
   name: grafana
 spec:
-  type: NodePort
   ports:
     - port: 80
       targetPort: 3000
-      nodePort: 30006
   selector:
     app: grafana
