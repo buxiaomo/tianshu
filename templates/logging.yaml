@@ -90,12 +90,12 @@ spec:
           livenessProbe:
             tcpSocket:
               port: 9200
-            initialDelaySeconds: 5
+            initialDelaySeconds: 60
             timeoutSeconds: 10
           readinessProbe:
             tcpSocket:
               port: 9200
-            initialDelaySeconds: 5
+            initialDelaySeconds: 60
             timeoutSeconds: 10
           volumeMounts:
             - name: elasticsearch-vol
