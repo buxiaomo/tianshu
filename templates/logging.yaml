@@ -437,8 +437,8 @@ spec:
               mountPath: /data/docker/containers
               readOnly: true
             - name: varlibcontainers
-              hostPath:
-                path: /var/lib/docker/containers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
             - name: fluent-bit-config
               mountPath: /fluent-bit/etc/
       terminationGracePeriodSeconds: 10
