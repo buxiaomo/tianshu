@@ -16,7 +16,7 @@ data:
     collation-server = utf8mb4_general_ci
     init_connect = 'SET NAMES utf8mb4'
     symbolic-links=0
-    port        = 3306
+    port        = {{ .Values.mysql.port }}
     socket		= /var/run/mysqld/mysqld.sock
     pid-file	= /var/run/mysqld/mysqld.pid
     datadir		= /var/lib/mysql
@@ -116,6 +116,19 @@ spec:
       storage: 1Gi
 
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+    - name: tcp
+      port: {{ .Values.mysql.port }}
+      targetPort: tcp
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -155,20 +168,20 @@ spec:
               subPath: mysqld.cnf
           ports:
             - name: tcp
-              containerPort: 3306
+              containerPort: {{ .Values.mysql.port }}
               protocol: TCP
           livenessProbe:
             initialDelaySeconds: 90
             periodSeconds: 5
             timeoutSeconds: 5
             tcpSocket:
-              port: 3306
+              port: {{ .Values.mysql.port }}
           readinessProbe:
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 5
             tcpSocket:
-              port: 3306
+              port: {{ .Values.mysql.port }}
           env:
             - name: TZ
               value: "Asia/Shanghai"

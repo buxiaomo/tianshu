@@ -4,6 +4,7 @@
 mysql:
   enable: true
   image: nacos/nacos-mysql:5.7
+  port: 3306
   username: "root"
   password: "root"
   database: "nacos_dev"
@@ -47,11 +48,15 @@ minio:
   #     memory: "512Mi"
 
 
-
-
-
-# dubhe:
-#   environment: "prod"
+dubhe:
+  environment: "prod"
+  nacos:
+    mysql:
+      host: xxx.xxx.xxx.xxx
+      port: 3306
+      dbname: "nacos_dev"
+      user: "root"
+      password: "root"
 #   # harbor
 #   harbor:
 #     host: "172.16.117.11:5000"
@@ -76,13 +81,7 @@ minio:
 #     password: "root"
 
 #   # Nacos config
-#   nacos:
-#     server: "nacos.dubhe-system.svc.cluster.local"
-#     port: "8848"
-#     mysql:
-#       dbname: "nacos"
-#       user: "root"
-#       password: "root"
+
 
 #   # Minio config
 #   minio:
