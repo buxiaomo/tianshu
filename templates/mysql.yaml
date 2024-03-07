@@ -110,7 +110,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: {{ .Values.storage.classname }}
+  storageClassName: {{ .Values.mysql.storage.classname }}
   resources:
     requests:
       storage: 1Gi
