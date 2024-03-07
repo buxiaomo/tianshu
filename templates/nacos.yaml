@@ -33,7 +33,7 @@ metadata:
 spec:
   podManagementPolicy: Parallel
   serviceName: nacos-headless
-  replicas: "{{ .Values.nacos.replicas }}"
+  replicas: {{ .Values.nacos.replicas }}
   template:
     metadata:
       labels:
