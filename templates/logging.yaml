@@ -80,7 +80,6 @@ spec:
         - name: elasticsearch
           image: "{{ .Values.logging.elasticsearch.image }}"
           imagePullPolicy: IfNotPresent
-          hostname: elasticsearch
           ports:
             - containerPort: 9200
               name: db
