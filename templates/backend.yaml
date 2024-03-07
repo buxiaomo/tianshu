@@ -23,6 +23,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: dubhe
+          env:
+            - name: MYSQL_DATABASE
+              value: "dubhe-{{ .Values.dubhe.environment }}"
         - name: minio-init
           image: "{{ .Values.dubhe.registry }}/minio-init:v1"
           envFrom:
