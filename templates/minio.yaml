@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-vol
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storage.classname }}
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+spec:
+  selector:
+    app: minio
+  ports:
+    - name: minio
+      port: 9000
+      targetPort: http
+      protocol: TCP
+      appProtocol: http
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  labels:
+    app: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      volumes:
+        - name: minio-vol
+          persistentVolumeClaim:
+            claimName: minio-vol
+      containers:
+        - name: minio
+          image: {{ .Values.minio.image }}
+          command: 
+            - "/bin/sh"
+            - "-ce"
+            - "/usr/bin/docker-entrypoint.sh minio server --json /data"
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: minio-vol
+              subPath: minio-vol
+              mountPath: /data
+          ports:
+            - name: tcp
+              containerPort: 9000
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 9000
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 9000
+          env:
+            - name: TZ
+              value: "Asia/Shanghai"
+            - name: MINIO_ROOT_USER
+              value: "{{ .Values.minio.accesskey }}"
+            - name: MINIO_ROOT_PASSWORD
+              value: "{{ .Values.minio.secretkey }}"
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+            requests:
+              cpu: "0.5"
+              memory: "512Mi"
