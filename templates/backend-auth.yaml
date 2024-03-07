@@ -23,32 +23,9 @@ spec:
       containers:
         - name: dubhe-backend-auth
           image: "{{ .Values.dubhe.registry }}/auth:v1"
-          env:
-            - name: NACOS_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: dubhe
-                  key: NACOS_HOST
-            - name: NACOS_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: dubhe
-                  key: NACOS_PORT
-            - name: NACOS_NAMESPACE
-              valueFrom:
-                configMapKeyRef:
-                  name: dubhe
-                  key: NACOS_NAMESPACE
-            - name: NACOS_USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  name: dubhe
-                  key: NACOS_USERNAME
-            - name: NACOS_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  name: dubhe
-                  key: NACOS_PASSWORD
+          envFrom:
+            - configMapRef:
+                name: dubhe
           volumeMounts:
             - name: data
               mountPath: /nfs
