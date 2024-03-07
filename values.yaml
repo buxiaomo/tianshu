@@ -2,6 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 logging:
+  enable: true
   storage:
     classname: "nfs-client"
   elasticsearch:
@@ -10,9 +11,9 @@ logging:
     image: docker.elastic.co/kibana/kibana:7.17.16
   fluentbit:
     image: fluent/fluent-bit:2.2.0
-    
 
 monitoring:
+  enable: true
   storage:
     classname: "nfs-client"
   nodeExporter:
@@ -43,6 +44,7 @@ mysql:
 redis:
   enable: true
   image: redis:6.2.6-alpine
+  port: 
   password: "Tianshu@123"
   storage:
     classname: "nfs-client"
@@ -70,6 +72,7 @@ minio:
   #     memory: "512Mi"
 
 nacos:
+  enable: true
   image: nacos/nacos-server:2.0.3
   replicas: 1
   storage:
@@ -77,35 +80,31 @@ nacos:
 
 dubhe:
   environment: "prod"
-  nacos:
-    mysql:
-      host: xxx.xxx.xxx.xxx
-      port: 3306
-      dbname: "nacos_dev"
-      user: "root"
-      password: "root"
-#   # harbor
-#   harbor:
-#     host: "172.16.117.11:5000"
-#     username: "admin"
-#     password: "Harbor12345"
-#   # grafana
-#   grafana:
-#     host: grafana
-#     port: 3000
-#   # prometheus
-#   prometheus:
-#     host: prometheus
-#     port: 9090
-#   # elasticsearch
-#   elasticsearch:
-#     host: elasticsearch
-#     port: 9200
-#   mysql:
-#     host: "mysql"
-#     dbname: "dubhe-prod"
-#     username: "root"
-#     password: "root"
+  # harbor
+  harbor:
+    host: xxx.xxx.xxx
+    username: "admin"
+    password: "Harbor12345"
+  # grafana
+  grafana:
+    host: xxx.xxx.xxx
+    port: 3000
+  # prometheus
+  prometheus:
+    host: xxx.xxx.xxx
+    port: 9090
+  # elasticsearch
+  elasticsearch:
+    host: xxx.xxx.xxx
+    port: 9200
+  # mysql
+  mysql:
+    host: xxx.xxx.xxx
+    port: 3306
+    username: "root"
+    password: "root"
+    database: "nacos_dev"
+
 
 #   # Nacos config
 

@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dubhe
+data:
+  # Harbor
+  HARBOR_HOST: {{ .Values.dubhe.harbor.host }}
+  HARBOR_USERNAME: {{ .Values.dubhe.harbor.username }}
+  HARBOR_PASSWORD: {{ .Values.dubhe.harbor.password }}
+
+  GRAFANA_HOST: "grafana"
+  GRAFANA_PORT: 3000
+
+  PROMETHEUS_HOST: "prometheus"
+  PROMETHEUS_PORT: 9090
+
+  ELASTICSEARCH_HOST: "elasticsearch"
+  ELASTICSEARCH_PORT: 9200
+
+  MYSQL_HOST: "mysql"
+  MYSQL_PORT: 3306
+  MYSQL_USERNAME: {{ .Values.mysql.username }}
+  MYSQL_PASSWORD: {{ .Values.mysql.password }}
+
+  NACOS_HOST: "nacos-headless"
+  NACOS_PORT: 8848
+  NACOS_DB_NAME: {{ .Values.mysql.database }}
+  NACOS_DB_USERNAME: {{ .Values.mysql.username }}
+  NACOS_DB_PASSWORD: {{ .Values.mysql.password }}
+
+  MINIO_HOST: "minio"
+  MINIO_PORT: 9000
+  MINIO_ACCESS_KEY: {{ .Values.minio.accesskey }}
+  MINIO_SECRET_KEY: {{ .Values.minio.secretkey }}
+
+  REDIS_HOST: "redis"
+  REDIS_PORT: 6379
+  REDIS_PASSWORD: {{ .Values.redis.password }}
