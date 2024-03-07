@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      dubhe.io/owner: "dubhe"
+      dubhe.io/application: "dubhe-backend"
+  template:
+    metadata:
+      labels:
+        dubhe.io/owner: "dubhe"
+        dubhe.io/application: "dubhe-backend"
+    spec:
+      initContainers:
+        - name: mysql-init
+          image: "{{ .Values.dubhe.registry }}/mysql-init:v1"
+          envFrom:
+            - configMapRef:
+                name: dubhe
+        - name: minio-init
+          image: "{{ .Values.dubhe.registry }}/minio-init:v1"
+          envFrom:
+            - configMapRef:
+                name: dubhe
+        - name: nacos-init
+          image: "{{ .Values.dubhe.registry }}/nacos-init:v1"
+          volumeMounts:
+            - name: kubeconfig
+              mountPath: /data/kubeconfig.yaml
+              subPath: kubeconfig.yaml
+          envFrom:
+            - configMapRef:
+                name: dubhe
+        - name: elasticsearch-init
+          image: "{{ .Values.dubhe.registry }}/elasticsearch-init:v1"
+          envFrom:
+            - configMapRef:
+                name: dubhe
+        - name: storage-init
+          image: "{{ .Values.dubhe.registry }}/storage-init:v1"
+          env:
+            - name: DUBHE_ENVIRONMENT
+              value: "dubhe-{{ .Values.dubhe.environment }}"
+          volumeMounts:
+            - name: data
+              mountPath: /nfs
+      containers:
+        - name: dubhe-backend
+          image: nginx:1.20.0
+      volumes:
+        - name: data
+          hostPath:
+            path: /data/dubhe/dubhe-storage
+        - name: kubeconfig
+          configMap:
+            name: kubeconfig
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend"
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      name: port-80
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend"
