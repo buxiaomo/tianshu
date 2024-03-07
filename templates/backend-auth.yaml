@@ -24,10 +24,31 @@ spec:
         - name: dubhe-backend-auth
           image: "{{ .Values.dubhe.registry }}/auth:v1"
           env:
-            - name: HOST_IP
+            - name: NACOS_HOST
               valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
+                configMapKeyRef:
+                  name: dubhe
+                  key: NACOS_HOST
+            - name: NACOS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: dubhe
+                  key: NACOS_PORT
+            - name: NACOS_NAMESPACE
+              valueFrom:
+                configMapKeyRef:
+                  name: dubhe
+                  key: NACOS_NAMESPACE
+            - name: NACOS_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: dubhe
+                  key: NACOS_USERNAME
+            - name: NACOS_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: dubhe
+                  key: NACOS_PASSWORD
           volumeMounts:
             - name: data
               mountPath: /nfs

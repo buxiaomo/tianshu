@@ -75,6 +75,8 @@ nacos:
   enable: true
   image: nacos/nacos-server:2.0.3
   replicas: 1
+  username: "nacos"
+  password: "nacos"
   storage:
     classname: "nfs-client"
 

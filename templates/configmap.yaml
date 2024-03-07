@@ -26,6 +26,8 @@ data:
   NACOS_HOST: "nacos-headless"
   NACOS_PORT: "8848"
   NACOS_NAMESPACE: "dubhe-{{ .Values.dubhe.environment }}"
+  NACOS_USERNAME: "{{ .Values.nacos.username }}"
+  NACOS_PASSWORD: "{{ .Values.nacos.password }}"
   NACOS_DB_NAME: "{{ .Values.mysql.database }}"
   NACOS_DB_USERNAME: "{{ .Values.mysql.username }}"
   NACOS_DB_PASSWORD: "{{ .Values.mysql.password }}"
