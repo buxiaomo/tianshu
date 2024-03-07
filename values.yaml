@@ -47,6 +47,11 @@ minio:
   #     cpu: "0.5"
   #     memory: "512Mi"
 
+nacos:
+  image: nacos/nacos-server:2.0.3
+  replicas: 1
+  storage:
+    classname: "nfs-client"
 
 dubhe:
   environment: "prod"

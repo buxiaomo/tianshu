@@ -33,7 +33,7 @@ metadata:
 spec:
   podManagementPolicy: Parallel
   serviceName: nacos-headless
-  replicas: 3
+  replicas: {{ .Values.nacos.replicas }}
   template:
     metadata:
       labels:
@@ -63,7 +63,7 @@ spec:
       containers:
         - name: nacos
           imagePullPolicy: Always
-          image: nacos/nacos-server:2.0.3
+          image: {{ .Values.nacos.image }}
           resources:
             requests:
               memory: "2Gi"
@@ -79,7 +79,7 @@ spec:
               name: old-raft-rpc
           env:
             - name: NACOS_REPLICAS
-              value: "3"
+              value: "{{ .Values.nacos.replicas }}"
             - name: SERVICE_NAME
               value: "nacos-headless"
             - name: DOMAIN_NAME
@@ -121,7 +121,7 @@ spec:
     - metadata:
         name: data
         annotations:
-          volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
+          volume.beta.kubernetes.io/storage-class: "{{ .Values.nacos.storage.classname }}"
       spec:
         accessModes: [ "ReadWriteMany" ]
         resources:
