@@ -80,6 +80,7 @@ nacos:
 
 dubhe:
   environment: "prod"
+  registry: docker.io/zhijiangtianshu
   # harbor
   harbor:
     host: xxx.xxx.xxx
