@@ -1,6 +1,17 @@
 # Default values for tianshu.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+logging:
+  storage:
+    classname: "nfs-client"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.16
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.16
+  fluentbit:
+    image: fluent/fluent-bit:2.2.0
+    
+
 monitoring:
   storage:
     classname: "nfs-client"
