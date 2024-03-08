@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-data
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-data"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      dubhe.io/owner: "dubhe"
+      dubhe.io/application: "dubhe-backend-data"
+  template:
+    metadata:
+      labels:
+        dubhe.io/owner: "dubhe"
+        dubhe.io/application: "dubhe-backend-data"
+    spec:
+      initContainers:
+        - name: backend-init
+          image: "{{ .Values.dubhe.registry }}/backend-init:v1"
+      containers:
+        - name: dubhe-backend-data
+          image: "{{ .Values.dubhe.registry }}/backend-data:v1"
+          ports:
+            - name: tcp
+              containerPort: 8823
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8823
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8823
+          envFrom:
+            - configMapRef:
+                name: dubhe
+          volumeMounts:
+            - name: data
+              mountPath: /nfs
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dubhe-vol
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-data
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-data"
+spec:
+  ports:
+    - port: 8823
+      targetPort: 8823
+      name: port-8823
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-data"

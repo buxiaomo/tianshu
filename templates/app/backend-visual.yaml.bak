@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: visual-redis-config
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "redis"
+data:
+  config.ini: |-
+    # http服务相关 
+    [httpserver]
+    # True或False，表示是否启动django调试
+    DjangoDebug = False
+    # 日志解析服务相关
+    [parser]
+    # 可视化日志的根目录，解析服务会从该目录下查找某个用户的可视化日志，用户需根据实际情况进行替换
+    LogdirBase = /nfs/dubhe-prod/train-manage
+    [common]
+    RedisHost = {{ REDIS_HOST }}
+    RedisPort = {{ REDIS_PORT }}
+    RedisDB = 10
+    RedisPassword = {{ REDIS_PASSWORD }}
+    UserExpirationTime = 60
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-visual
+  namespace: dubhe-system
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-visual"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      dubhe.io/owner: "dubhe"
+      dubhe.io/application: "dubhe-backend-visual"
+  template:
+    metadata:
+      labels:
+        dubhe.io/owner: "dubhe"
+        dubhe.io/application: "dubhe-backend-visual"
+    spec:
+      initContainers:
+        - name: backend-init
+          image: "{{ .Values.dubhe.registry }}/backend-init:v1"
+      containers:
+        - name: dubhe-backend-visual
+          image: BACKEND_VISUAL_IMAGE
+          command:
+            ["/bin/bash", "-c", "/home/dubhe-visual-server-v2/start_server.sh"]
+          ports:
+            - containerPort: 9898
+          volumeMounts:
+            - name: data
+              mountPath: /nfs
+            - name: visual-redis-config
+              mountPath: /home/dubhe-visual-server-v2/config.ini
+              subPath: config.ini
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dubhe-vol
+        - name: visual-redis-config
+          configMap:
+            name: visual-redis-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-visual
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-visual"
+spec:
+  ports:
+    - port: 9898
+      targetPort: 9898
+      name: port-9898
+    - port: 9797
+      targetPort: 9797
+      name: port-9797
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-visual"

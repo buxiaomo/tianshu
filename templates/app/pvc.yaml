@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dubhe-vol
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: "{{ .Values.dubhe.storage.classname }}"
+  resources:
+    requests:
+      storage: 20Gi

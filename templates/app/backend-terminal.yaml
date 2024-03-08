@@ -1,74 +1,72 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-gateway
+  name: backend-terminal
   labels:
     dubhe.io/owner: "dubhe"
-    dubhe.io/application: "dubhe-backend-gateway"
+    dubhe.io/application: "dubhe-backend-terminal"
 spec:
   replicas: 1
   selector:
     matchLabels:
       dubhe.io/owner: "dubhe"
-      dubhe.io/application: "dubhe-backend-gateway"
+      dubhe.io/application: "dubhe-backend-terminal"
   template:
     metadata:
       labels:
         dubhe.io/owner: "dubhe"
-        dubhe.io/application: "dubhe-backend-gateway"
+        dubhe.io/application: "dubhe-backend-terminal"
     spec:
       initContainers:
         - name: backend-init
           image: "{{ .Values.dubhe.registry }}/backend-init:v1"
-          volumeMounts:
-            - name: data
-              mountPath: /nfs
       containers:
-        - name: dubhe-backend-gateway
-          image: "{{ .Values.dubhe.registry }}/gateway:v1"
+        - name: dubhe-backend-terminal
+          image: "{{ .Values.dubhe.registry }}/backend-terminal:v1"
           ports:
             - name: tcp
-              containerPort: 8800
+              containerPort: 8970
               protocol: TCP
           livenessProbe:
             initialDelaySeconds: 15
             periodSeconds: 5
             timeoutSeconds: 5
             tcpSocket:
-              port: 8800
+              port: 8970
           readinessProbe:
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 5
             tcpSocket:
-              port: 8800
+              port: 8970
           envFrom:
             - configMapRef:
                 name: dubhe
           volumeMounts:
             - name: data
               mountPath: /nfs
+            - name: "dockersock"
+              mountPath: "/var/run/docker.sock"
       volumes:
         - name: data
-          # nfs:
-          #   server: 
-          #   path: /data/dubhe/dubhe-storage
+          persistentVolumeClaim:
+            claimName: dubhe-vol
+        - name: "dockersock"
           hostPath:
-            path: /data/dubhe/dubhe-storage
-
+            path: "/var/run/docker.sock"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-gateway
+  name: dubhe-terminal
   labels:
     dubhe.io/owner: "dubhe"
-    dubhe.io/application: "dubhe-backend-gateway"
+    dubhe.io/application: "dubhe-backend-terminal"
 spec:
   ports:
-    - port: 8800
-      targetPort: 8800
-      name: port-8800
+    - port: 8970
+      targetPort: 8970
+      name: port-8970
   selector:
     dubhe.io/owner: "dubhe"
-    dubhe.io/application: "dubhe-backend-gateway"
+    dubhe.io/application: "dubhe-backend-terminal"

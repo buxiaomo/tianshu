@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-data-dcm
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-data-dcm"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      dubhe.io/owner: "dubhe"
+      dubhe.io/application: "dubhe-backend-data-dcm"
+  template:
+    metadata:
+      labels:
+        dubhe.io/owner: "dubhe"
+        dubhe.io/application: "dubhe-backend-data-dcm"
+    spec:
+      initContainers:
+        - name: backend-init
+          image: "{{ .Values.dubhe.registry }}/backend-init:v1"
+      containers:
+        - name: dubhe-backend-data-dcm
+          image: "{{ .Values.dubhe.registry }}/backend-data-dcm:v1"
+          ports:
+            - name: tcp
+              containerPort: 8011
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8011
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8011
+          envFrom:
+            - configMapRef:
+                name: dubhe
+          volumeMounts:
+            - name: data
+              mountPath: /nfs
+            - name: run
+              mountPath: /var/run
+      volumes:
+        - name: run
+          hostPath:
+            path: /var/run
+        - name: data
+          persistentVolumeClaim:
+            claimName: dubhe-vol
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-data-dcm
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-data-dcm"
+spec:
+  ports:
+    - port: 8011
+      targetPort: 8011
+      name: port-8011
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-data-dcm"

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-tadl
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-tadl"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      dubhe.io/owner: "dubhe"
+      dubhe.io/application: "dubhe-backend-tadl"
+  template:
+    metadata:
+      labels:
+        dubhe.io/owner: "dubhe"
+        dubhe.io/application: "dubhe-backend-tadl"
+    spec:
+      initContainers:
+        - name: backend-init
+          image: "{{ .Values.dubhe.registry }}/backend-init:v1"
+      containers:
+        - name: dubhe-backend-tadl
+          image: "{{ .Values.dubhe.registry }}/backend-tadl:v1"
+          ports:
+            - name: tcp
+              containerPort: 8864
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8864
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8864
+          envFrom:
+            - configMapRef:
+                name: dubhe
+          volumeMounts:
+            - name: data
+              mountPath: /nfs
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dubhe-vol
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-tadl
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-tadl"
+spec:
+  ports:
+    - port: 8864
+      targetPort: 8864
+      name: port-8864
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-tadl"

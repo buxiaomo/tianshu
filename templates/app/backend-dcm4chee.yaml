@@ -1,0 +1,142 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dcm4chee-arc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: "{{ .Values.dubhe.storage.classname }}"
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-dcm4chee
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-dcm4chee"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      dubhe.io/owner: "dubhe"
+      dubhe.io/application: "dubhe-backend-dcm4chee"
+  template:
+    metadata:
+      labels:
+        dubhe.io/owner: "dubhe"
+        dubhe.io/application: "dubhe-backend-dcm4chee"
+    spec:
+      initContainers:
+        - name: backend-init
+          image: "{{ .Values.dubhe.registry }}/backend-init:v1"
+      containers:
+        - name: dubhe-backend-dcm4chee-ldap
+          image: dcm4che/slapd-dcm4chee:2.4.44-12.0
+          ports:
+            - containerPort: 389
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/ldap
+              subPath: ldap
+            - name: data
+              mountPath: /var/lib/slapd.d
+              subPath: slapd.d
+            - name: time
+              mountPath: /etc/localtime
+        - name: dubhe-backend-dcm4chee-db
+          image: dcm4che/postgres-dcm4chee:10.0-12
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: pacsdb
+            - name: POSTGRES_USER
+              value: pacs
+            - name: POSTGRES_PASSWORD
+              value: pacs
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: db
+            - name: time
+              mountPath: /etc/localtime
+        - name: dubhe-backend-dcm4chee-arc
+          image: dcm4che/dcm4chee-arc-psql:5.12.0
+          ports:
+            - containerPort: 8080
+            - containerPort: 8443
+            - containerPort: 9990
+            - containerPort: 11112
+            - containerPort: 2575
+          env:
+            - name: POSTGRES_DB
+              value: pacsdb
+            - name: POSTGRES_USER
+              value: pacs
+            - name: POSTGRES_PASSWORD
+              value: pacs
+            - name: WILDFLY_WAIT_FOR
+              value: "ldap:389 db:5432"
+          volumeMounts:
+            - name: data
+              mountPath: /opt/wildfly/standalone
+              subPath: wildfly
+            - name: time
+              mountPath: /etc/localtime
+      hostAliases:
+        - ip: 127.0.0.1
+          hostnames:
+            - ldap
+            - db
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dcm4chee-arc
+        - name: time
+          hostPath:
+            path: /etc/localtime
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-dcm4chee
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-dcm4chee"
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: port-8080
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-dcm4chee"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-dcm4chee-console
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-dcm4chee"
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: dcm4chee
+      nodePort: 30088
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: dcm4chee-upload
+      nodePort: 31112
+      port: 11112
+      protocol: TCP
+      targetPort: 11112
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-dcm4chee"
+  type: NodePort

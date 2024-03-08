@@ -1,0 +1,70 @@
+##################################################################################################
+# dubhe-admin
+##################################################################################################
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-admin
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-admin"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      dubhe.io/owner: "dubhe"
+      dubhe.io/application: "dubhe-backend-admin"
+  template:
+    metadata:
+      labels:
+        dubhe.io/owner: "dubhe"
+        dubhe.io/application: "dubhe-backend-admin"
+    spec:
+      initContainers:
+        - name: backend-init
+          image: "{{ .Values.dubhe.registry }}/backend-init:v1"
+      containers:
+        - name: dubhe-backend-admin
+          image: "{{ .Values.dubhe.registry }}/backend-admin:v1"
+          ports:
+            - name: tcp
+              containerPort: 8870
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8870
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 8870
+          envFrom:
+            - configMapRef:
+                name: dubhe
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dubhe-vol
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-admin
+  namespace: dubhe-system
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-admin"
+spec:
+  ports:
+    - port: 8870
+      targetPort: 8870
+      name: port-8870
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-backend-admin"

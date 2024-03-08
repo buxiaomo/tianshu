@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-model-measure
+  namespace: dubhe-system
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-model-measure"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      dubhe.io/owner: "dubhe"
+      dubhe.io/application: "dubhe-model-measure"
+  template:
+    metadata:
+      labels:
+        dubhe.io/owner: "dubhe"
+        dubhe.io/application: "dubhe-model-measure"
+    spec:
+      containers:
+        - name: backend-model-measure
+          image: MODEL_MEASURING_IMAGE
+          args:
+            - -c
+            - "source /root/anaconda3/bin/activate pytorch_1_3 && pip install web.py -i https://pypi.tuna.tsinghua.edu.cn/simple/ &&  python /model_measuring/app.py"
+          command:
+            - /bin/bash
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: mm
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              subPath: "dubhe-{{ .Values.dubhe.environment }}/model"
+              mountPath: /model
+            - name: data
+              subPath: "dubhe-{{ .Values.dubhe.environment }}/dataset"
+              mountPath: /dataset
+            - name: data
+              subPath: "dubhe-{{ .Values.dubhe.environment }}/exported-metrics"
+              mountPath: /exported-metrics
+      nodeSelector:
+        gpu: "gpu"
+      volumes:
+        - name: data
+          hostPath:
+            path: "{{ .Values.dubhe.storage }}"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-model-measure
+  namespace: dubhe-system
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-model-measure"
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: port-8080
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-model-measure"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-model-measure-console
+  namespace: dubhe-system
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-model-measure"
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 32760
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-model-measure"

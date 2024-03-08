@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-model-converter
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-model-converter"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      dubhe.io/owner: "dubhe"
+      dubhe.io/application: "dubhe-model-converter"
+  template:
+    metadata:
+      labels:
+        dubhe.io/owner: "dubhe"
+        dubhe.io/application: "dubhe-model-converter"
+    spec:
+      containers:
+        - name: dubhe-model-converter
+          image: "{{ .Values.dubhe.registry }}/model-converter:v1"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: mc
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              subPath: "dubhe-{{ .Values.dubhe.environment }}/model"
+              mountPath: /model
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dubhe-vol
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-model-converter
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-model-converter"
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: port-8080
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-model-converter"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-model-converter-console
+  labels:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-model-converter"
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 32230
+      protocol: TCP
+      targetPort: mc
+  selector:
+    dubhe.io/owner: "dubhe"
+    dubhe.io/application: "dubhe-model-converter"

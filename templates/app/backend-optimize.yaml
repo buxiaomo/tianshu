@@ -1,44 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-auth
+  name: backend-optimize
   labels:
     dubhe.io/owner: "dubhe"
-    dubhe.io/application: "dubhe-backend-auth"
+    dubhe.io/application: "dubhe-backend-optimize"
 spec:
   replicas: 1
   selector:
     matchLabels:
       dubhe.io/owner: "dubhe"
-      dubhe.io/application: "dubhe-backend-auth"
+      dubhe.io/application: "dubhe-backend-optimize"
   template:
     metadata:
       labels:
         dubhe.io/owner: "dubhe"
-        dubhe.io/application: "dubhe-backend-auth"
+        dubhe.io/application: "dubhe-backend-optimize"
     spec:
       initContainers:
         - name: backend-init
           image: "{{ .Values.dubhe.registry }}/backend-init:v1"
       containers:
-        - name: dubhe-backend-auth
-          image: "{{ .Values.dubhe.registry }}/auth:v1"
+        - name: dubhe-backend-optimize
+          image: "{{ .Values.dubhe.registry }}/backend-optimize:v1"
           ports:
             - name: tcp
-              containerPort: 8866
+              containerPort: 8899
               protocol: TCP
           livenessProbe:
             initialDelaySeconds: 15
             periodSeconds: 5
             timeoutSeconds: 5
             tcpSocket:
-              port: 8866
+              port: 8899
           readinessProbe:
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 5
             tcpSocket:
-              port: 8866
+              port: 8899
           envFrom:
             - configMapRef:
                 name: dubhe
@@ -47,22 +47,22 @@ spec:
               mountPath: /nfs
       volumes:
         - name: data
-          hostPath:
-            path: /data/dubhe/dubhe-storage
+          persistentVolumeClaim:
+            claimName: dubhe-vol
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-auth
+  name: backend-optimize
   labels:
     dubhe.io/owner: "dubhe"
-    dubhe.io/application: "dubhe-backend-auth"
+    dubhe.io/application: "dubhe-backend-optimize"
 spec:
   ports:
-    - port: 8866
-      targetPort: 8866
-      name: port-8866
+    - port: 8899
+      targetPort: 8899
+      name: port-8899
   selector:
     dubhe.io/owner: "dubhe"
-    dubhe.io/application: "dubhe-backend-auth"
+    dubhe.io/application: "dubhe-backend-optimize"

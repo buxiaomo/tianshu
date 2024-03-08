@@ -82,6 +82,8 @@ nacos:
 
 dubhe:
   environment: "prod"
+  storage:
+    classname: "nfs-client"
   registry: docker.io/zhijiangtianshu
   # harbor
   harbor:
